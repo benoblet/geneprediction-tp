@@ -142,16 +142,46 @@ def has_shine_dalgarno(shine_regex, sequence,
 def predict_genes(sequence, start_regex, stop_regex, shine_regex,
                   min_gene_len, max_shine_dalgarno_distance, min_gap):
     """Predict most probable genes
+    Based on teacher's algorithml written in French
     """
-    pass
+    #print(f"Studying a {len(sequence)} bases long sequence")
+    predicted_genes = []
+
+    start = 0
+    while len(sequence) - start >= min_gap:
+        start = find_start(start_regex, sequence, start, len(sequence))
+        #print(f"starting position {start}")
+        if start is None:
+            break
+        stop = find_stop(stop_regex, sequence, start)
+        #print(f"found stop position {stop}")
+        if stop is None:
+            start += 1
+            continue
+        #print(f"current length {stop - start + 1} vs {min_gene_len}")
+        if stop - start + 1 <= min_gene_len:
+            # I would seek another stop but teacher's algo drop this start
+            start += 1
+            continue
+        #sd_present = has_shine_dalgarno(shine_regex, sequence, start, max_shine_dalgarno_distance)
+        #print(f"detected sd sequence: {sd_present}")
+        if not has_shine_dalgarno(shine_regex, sequence, start, max_shine_dalgarno_distance):
+            start += 1
+            continue
+        last_base = stop + 2 + 1  # +2 is 3rd codon letter, +1 for 1-based count
+        predicted_genes.append([start+1, last_base])
+        #print(f"saved gene positions {predicted_genes[-1]}")
+        start = last_base + min_gap
+        #print(f"start for next iteration: {start}")
+    return predicted_genes
 
 
 def write_genes_pos(predicted_genes_file, probable_genes):
     """Write list of gene positions
     """
     try:
-        with open(predicted_genes_file, "wt") as predict_genes:
-            predict_genes_writer = csv.writer(predict_genes, delimiter=",")
+        with open(predicted_genes_file, "wt") as my_file_out:
+            predict_genes_writer = csv.writer(my_file_out, delimiter=",")
             predict_genes_writer.writerow(["Start", "Stop"])
             predict_genes_writer.writerows(probable_genes)
     except IOError:
@@ -194,6 +224,17 @@ def main():
     """
     Main program function
     """
+
+    def call_me_predict_genes(sequence):
+        """Wrap predict_genes function with given main arguments.
+        """
+        min_length = args.min_gene_len
+        max_sd_dist = args.max_shine_dalgarno_distance
+        min_spacing = args.min_gap
+
+        return predict_genes(sequence, start_regex, stop_regex, shine_regex,
+                             min_length, max_sd_dist, min_spacing)
+
     # Gene detection over genome involves to consider a thymine instead of
     # an uracile that we would find on the expressed RNA
     #start_codons = ['TTG', 'CTG', 'ATT', 'ATG', 'GTG']
@@ -205,12 +246,18 @@ def main():
     shine_regex = re.compile('A?G?GAGG|GGAG|GG.{1}GG')
     # Arguments
     args = get_arguments()
-    # Let us do magic in 5' to 3'
 
-    # Don't forget to uncomment !!!
-    # Call these function in the order that you want
-    # We reverse and complement
-    #sequence_rc = reverse_complement(sequence)
+    # Retrieve sequence
+    sequence = read_fasta(args.genome_file)
+    sequence.replace("U", "T")
+
+    # Let us do magic in 5' to 3'
+    forward_genes = call_me_predict_genes(sequence)
+
+    # Let's do the same in 3' to 5'
+    sequence_rc = reverse_complement(sequence)
+    reverse_genes = call_me_predict_genes(sequence_rc)
+
     # Call to output functions
     #write_genes_pos(args.predicted_genes_file, probable_genes)
     #write_genes(args.fasta_file, sequence, probable_genes, sequence_rc, probable_genes_comp)
