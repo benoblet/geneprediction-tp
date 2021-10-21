@@ -1,16 +1,16 @@
 # Résultats
 
 Pylint :  
-![](Final_pylint_test.PNG)
+![](results/Final_pylint_test.PNG)
   
 Pytest :  
-![](Final_pytest_test.PNG)
+![](results/Final_pytest_test.PNG)
   
 Exécution en quelques secondes :  
-![](Used_command_and_output.PNG)
+![](results/Used_command_and_output.PNG)
 
 Comparaison des résultats :  
-![](Venn_result.PNG)
+![](results/Venn_result.PNG)
   
 Sur les 2867 gènes présents chez *Listeria monocytogenes*, le présent programme n'identifie avec les paramètres par défaut que 622 gènes contre 2859 identifiés par le programme Prodigal (620 identifés par les deux programmes). Si la proportion de gènes identifée est plus faible pour gpred.py (21,7% contre 99,7%), les résultats semblent moins sujet à erreur (16,4% contre 3,3% de gènes effectifs dans les valeurs prédites).   
 
@@ -18,12 +18,12 @@ Sur les 2867 gènes présents chez *Listeria monocytogenes*, le présent program
 # TP Prédiction de gènes
   
 Les gènes correspondent à des sous-séquences de transcrits qui peuvent être traduites en protéines par le ribosome. Ils se placent dans un cadre de lecture et consistent en des triplets consécutifs depuis un codon d’initiation ( 'AUG', 'UUG', 'CUG', 'AUU' ou 'GUG') jusqu'à un codon stop (UAA', 'UAG', ou 'UGA'). Ces codons sont dans **le même cadre de lecture** !  
-On retrouve en amont du codon d’initiation un motif permettant l'initiation de la traduction via la fixation de la sous-unité 16S de l’ARN ribosomique : AGGAGGUAA appelée séquence de Shine-Dalgarno [Shine et Dalgarno, 1974]. Ce motif n'est pas nécessairement dans le même cadre de lecture que le codon d'initiation et peut être incomplet.
-
-
-Peu d’organismes bénéficient à ce jour d’une annotation vérifiée expérimentalement. La prédiction des gènes reste donc une tâche importante pour l’annotation automatique des génomes. De multiples logiciels et approches techniques existent pour cette tâche :
-https://en.wikipedia.org/wiki/List_of_gene_prediction_software
-
+On retrouve en amont du codon d’initiation un motif permettant l'initiation de la traduction via la fixation de la sous-unité 16S de l’ARN ribosomique : AGGAGGUAA appelée séquence de Shine-Dalgarno [Shine et Dalgarno, 1974]. Ce motif n'est pas nécessairement dans le même cadre de lecture que le codon d'initiation et peut être incomplet.  
+  
+  
+Peu d’organismes bénéficient à ce jour d’une annotation vérifiée expérimentalement. La prédiction des gènes reste donc une tâche importante pour l’annotation automatique des génomes. De multiples logiciels et approches techniques existent pour cette tâche :  
+https://en.wikipedia.org/wiki/List_of_gene_prediction_software  
+  
 Nous développerons de notre côté une approche simple pour prédire les gènes des procaryotes basée sur la détection des cadres de lecture et du motif Shine-Dalgarno. L’objectif de ce TP sera de prédire les gènes du génome de référence de [*Listeria monocytogenes EGD-e*](https://www.ncbi.nlm.nih.gov/genome/browse/#!/proteins/159/159660%7CListeria%20monocytogenes%20EGD-e/) (assemblée et séquencée par l’Institut Pasteur), qui présente 2867 gènes.
 
 ```bash
@@ -144,6 +144,6 @@ Retourne la liste des positions des gènes prédits
 4. Programme principal /2  
   
 Votre programme principal fera appel aux fonctions précédentes nécessaires pour chercher les gènes dans le sens 5’ puis 3’, puis fera appel à **reverse complement** pour faire cette recherche dans le sens 3’ vers 5’. Aucune modification de vos fonctions ne doit être réalisée pour effectuer cette seconde partie.  
-La position des gènes prédits dans le sens 3’ vers 5’ devra être corrigée pour qu’elle apparaisse dans le sens 5’ 3’  ! Les positions ont une valeur croissante uniquement.  
+La position des gènes prédits dans le sens 3’ vers 5’ devra être corrigée pour qu’elle apparaisse dans le sens 5’ vers 3’  ! Les positions ont une valeur croissante uniquement.  
 Vérifiez la qualité de vos prédictions sur [jvenn (inra.fr)](http://jvenn.toulouse.inra.fr/app/example.html).  
 Copier/coller les fichiers prodigal.csv et position.csv dans leurs listes respectives et comparez ces positions avec celles du fichier predict_genes.  
