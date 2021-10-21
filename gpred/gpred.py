@@ -117,10 +117,27 @@ def find_stop(stop_regex, sequence, start):
     return None
 
 
-def has_shine_dalgarno(shine_regex, sequence, start, max_shine_dalgarno_distance):
-    """Find a shine dalgarno motif before the start codon
+def has_shine_dalgarno(shine_regex, sequence,
+                       start, max_shine_dalgarno_distance, verbose = False):
+    """Find a shine dalgarno motif before the start codon.
     """
-    pass
+    window_start = max(start - max_shine_dalgarno_distance, 0)
+    if verbose:
+        print(f"search will begin at position {window_start}")
+    options = shine_regex.finditer(sequence, window_start, start)
+    for option in options:
+        if verbose:
+            print(f"Current tested position is {option}")
+            print(f"match ending position: {option.end()}")
+            print(f"start - end option position: {start-option.end()}")
+        if start - option.end() > 6:
+            if verbose:
+                print("Found one SD valid motif")
+            return True
+    if verbose:
+        print("No SD sequence found")
+    return False
+
 
 def predict_genes(sequence, start_regex, stop_regex, shine_regex,
                   min_gene_len, max_shine_dalgarno_distance, min_gap):
