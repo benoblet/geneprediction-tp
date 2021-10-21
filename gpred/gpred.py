@@ -249,19 +249,35 @@ def main():
 
     # Retrieve sequence
     sequence = read_fasta(args.genome_file)
+    print(f"Input sequence length: {len(sequence)}")
     sequence.replace("U", "T")
 
     # Let us do magic in 5' to 3'
+    print("Scanning forward sequence...")
     forward_genes = call_me_predict_genes(sequence)
+    print("done")
 
     # Let's do the same in 3' to 5'
+    print("Reverse complement generation")
     sequence_rc = reverse_complement(sequence)
+    print("Scannning reverse sequence...")
     reverse_genes = call_me_predict_genes(sequence_rc)
+    print("done")
+
+    # Update reverse positions in 5'-3' values and merge them with forward positions
+    print("Building final gene list")
+    probable_genes = forward_genes[:]
+    for end, start in reverse_genes[::-1]:
+        end = len(sequence) - end
+        start = len(sequence) - start
+        probable_genes.append([start, end])
+    print(f"{len(probable_genes):10d} probable genes found")
+    probable_genes.sort()
 
     # Call to output functions
-    #write_genes_pos(args.predicted_genes_file, probable_genes)
-    #write_genes(args.fasta_file, sequence, probable_genes, sequence_rc, probable_genes_comp)
-
+    print("Writting output files")
+    write_genes_pos(args.predicted_genes_file, probable_genes)
+    write_genes(args.fasta_file, sequence, forward_genes, sequence_rc, reverse_genes)
 
 
 if __name__ == '__main__':
